@@ -6,6 +6,8 @@ Rihal Challenge - My try
 --
 # Preparing the enviroment
 
+NOTE: you requires to instal Anaconda (https://www.anaconda.com/distribution/)
+
 Before creating the conda enviroment, let's update Conda:
 
 `conda update --all`
