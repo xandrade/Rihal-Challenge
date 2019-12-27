@@ -1,5 +1,5 @@
 # Rihal-Challenge
-My try to the Rihal Challeng: https://github.com/xandrade/Rihal-Challenge/blob/master/Rihal-Challenge.pdf
+My try to the Rihal Challenge: https://github.com/xandrade/Rihal-Challenge/blob/master/Rihal-Challenge.pdf
 
 
 # Preparing the enviroment
