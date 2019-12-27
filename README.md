@@ -20,5 +20,4 @@ Activating conda enviroment:
 
 Installing requirements:
 
-`conda install scikit-learn numpy pandas matplotlib`
-`conda install -c conda-forge opencv`
+`conda install scikit-learn numpy pandas matplotlib opencv`
