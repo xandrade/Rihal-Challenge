@@ -2,8 +2,6 @@
 Rihal Challenge - My try
 
 
-
---
 # Preparing the enviroment
 
 NOTE: you are required to instal Anaconda (https://www.anaconda.com/distribution/)
