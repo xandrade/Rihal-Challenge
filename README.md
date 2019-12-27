@@ -20,4 +20,4 @@ Activating conda enviroment:
 
 Installing requirements:
 
-`conda install scikit-learn numpy pandas matplotlib opencv`
+`conda install scikit-learn numpy pandas matplotlib opencv imutils`
