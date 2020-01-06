@@ -20,4 +20,10 @@ Activating conda enviroment:
 
 Installing requirements:
 
-`conda install scikit-learn numpy pandas matplotlib opencv`
+1. `conda install scikit-learn numpy pandas matplotlib opencv pdfminer.six pytesseract`
+2. `pip install pymupdf`
+
+
+## Installing OCR
+
+Please follow the instructions here: https://github.com/UB-Mannheim/tesseract/wiki
