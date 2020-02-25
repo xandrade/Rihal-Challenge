@@ -30,6 +30,18 @@ def get_canny(image):
 def remove_noise(image):
     return cv2.medianBlur(image, 5)
 
+def auto_canny(image, sigma=0.33):
+	# compute the median of the single channel pixel intensities
+	v = np.median(image)
+ 
+	# apply automatic Canny edge detection using the computed median
+	lower = int(max(0, (1.0 - sigma) * v))
+	upper = int(min(255, (1.0 + sigma) * v))
+	edged = cv2.Canny(image, lower, upper)
+ 
+	# return the edged image
+	return edged
+
 def ajust_contrast(img):
     # CLAHE (Contrast Limited Adaptive Histogram Equalization)
     clahe = cv2.createCLAHE(clipLimit=3., tileGridSize=(8, 8))
@@ -44,44 +56,87 @@ def ajust_contrast(img):
     img2 = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)  # convert from LAB to BGR
     return img, img2
 
+def do_nothing():
+        pass
+
 
 if __name__ == "__main__":
 
-    url = u'D:\Dropbox\Python Projects\Rihal-Challenge\src\images\holy.jpeg'
+    url = u'D:\Dropbox\Python Projects\Rihal-Challenge\src\images\sample1.jpg'
     image = cv2.imread(url)
 
-    gray = get_grayscale(image)
+    cv2.namedWindow('Images Control')
 
-    #image = imutils.resize(image, width=500)
-    
+    cv2.createTrackbar("Maxthreshold", "Images Control",0,255,do_nothing)
+    cv2.createTrackbar("Minthreshold", "Images Control",0,255,do_nothing)
+    cv2.createTrackbar("GaussianBlurKernel", "Images Control",1,255,do_nothing)
+
+    while True:
+
+        max_threshold = cv2.getTrackbarPos("Maxthreshold", "Images Control")
+        min_threshold = cv2.getTrackbarPos("Minthreshold", "Images Control")
+        gaussianBlurKernel = cv2.getTrackbarPos("GaussianBlurKernel", "Images Control")
+
+        img = image.copy()
+        img1 = img.copy()
+        
+        img = get_grayscale(img)
+        img = cv2.blur(img, (5, 5), cv2.BORDER_DEFAULT)
+        ret, img = cv2.threshold(img,127,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+        #img = auto_canny(img)
+        img = get_canny(img)
+        
+        # find contours in the edged image
+        cnts = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cnts
+        cnts = imutils.grab_contours(cnts)
+        cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
+
+        print(f'number of families {len(cnts)}')
+
+        # loop over the contours
+        for idx, c in enumerate(cnts):
+
+            #sd = ShapeDetector()
+            #print(sd.detect(c))
+
+            mask = np.ones(image.shape[:2], dtype="uint8") * 255
+            cv2.drawContours(mask, [c], -1, 0, 0)
+            result = cv2.bitwise_and(image, image, mask=mask)
+
+            #stencil = np.zeros(img.shape).astype(img.dtype)
+            #color = [255, 255, 255]
+            #cv2.fillConvexPoly(stencil, c, color, 16, 0)
+            #result = cv2.bitwise_and(img, stencil)
 
 
-    #gray = get_thresholding(gray)
+            #cv2.imshow(f'test', result)
+            #cv2.waitKey()
 
-    #gray = imutils.resize(gray, width=1500)
-    #print(pytesseract.pytesseract.image_to_string(gray))
-    cv2.imshow(f'gray', gray)
-    cv2.waitKey()
+            # approximate the contour
+            peri = cv2.arcLength(c, True)
+            approx = cv2.approxPolyDP(c, 0.0005 * peri, True)
 
-    # Threshold
-    ret, Ithresh = cv2.threshold(gray,255,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-    cv2.imshow(f'Ithresh', Ithresh)
-    cv2.waitKey()
+            # assume that we have found our screen
+            x, y, width, height = cv2.boundingRect(c)
+            #family = image[y:y+height, x:x+width]
+            #cv2.imshow("family", family)
+            #cv2.waitKey(0)
 
-    gray = get_erode(gray)
-    gray = do_dilation(gray)
+            print(hierarchy[0][idx])
 
-    cv2.imshow(f'gray', gray)
-    cv2.waitKey()
-    """
-    Ithresh = get_canny(Ithresh)
-    cv2.imshow(f'get_canny', Ithresh)
-    cv2.waitKey()
-    
-    Ithresh = do_dilation(Ithresh)
-    cv2.imshow(f'do_dilation', Ithresh)
-    cv2.waitKey()
-    """
+            # draw the contours of the family in the main image
+
+            #cv2.drawContours(image, c, -1,(255,255,255), 0)
+            #cv2.drawContours(result, [approx], -1, (255, 255, 0), 3)
+            cv2.imshow("a", mask)
+            cv2.waitKey(0)
+
+        exit()
+        cv2.imshow(f'Images Control', result)
+        cv2.waitKey(1)
+
+   
 
     # Keep only small components but not to small
     comp = cv2.connectedComponentsWithStats(Ithresh)
